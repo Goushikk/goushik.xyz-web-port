@@ -2,23 +2,83 @@
 <html>
 <head>
     <title>My Web Page</title>
-    <style>
-        body {
-            background-color: #f0f0f0;
-            font-family: Arial, sans-serif;
+    <link rel="stylesheet" href="style.css">
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // Create an audio context
+        var audioContext = new (window.AudioContext || window.webkitAudioContext)();
+
+        // Load the audio file
+        var audioElement = document.createElement("audio");
+        audioElement.src = "popular.mp3";
+        audioElement.crossOrigin = "anonymous";
+        audioElement.controls = true;
+        document.body.appendChild(audioElement);
+
+        // Create an analyser node
+        var analyser = audioContext.createAnalyser();
+        analyser.fftSize = 256;
+        var bufferLength = analyser.frequencyBinCount;
+        var dataArray = new Uint8Array(bufferLength);
+
+        // Connect the audio element to the analyser node
+        var source = audioContext.createMediaElementSource(audioElement);
+        source.connect(analyser);
+        analyser.connect(audioContext.destination);
+
+        // Create a canvas element
+        var canvas = document.createElement("canvas");
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        document.body.appendChild(canvas);
+        var ctx = canvas.getContext("2d");
+
+        // Function to draw the animated background
+        function drawBackground() {
+            // Clear the canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Get the current frequency data
+            analyser.getByteFrequencyData(dataArray);
+
+            // Draw the background based on the frequency data
+            // You can customize the animation based on your requirements
+            // For example, you can change the colors, shapes, or movement patterns
+            // Here's a simple example that changes the background color based on the average frequency
+            var averageFrequency = 0;
+            for (var i = 0; i < bufferLength; i++) {
+                averageFrequency += dataArray[i];
+            }
+            averageFrequency /= bufferLength;
+
+            var red = Math.floor(averageFrequency / 2);
+            var green = Math.floor(averageFrequency / 4);
+            var blue = Math.floor(averageFrequency / 8);
+            ctx.fillStyle = "rgb(" + red + "," + green + "," + blue + ")";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Call the drawBackground function recursively to create an animation loop
+            requestAnimationFrame(drawBackground);
         }
 
-        h1 {
-            color: #333;
-        }
-
-        p {
-            color: #666;
-        }
-    </style>
+        // Start the animation loop
+        drawBackground();
+    });
+</script>
+</head>
 </head>
 <body>
     <h1>Welcome to My Web Page</h1>
     <p>This is a simple web page with CSS styling.</p>
 </body>
 </html>
+<div id="song-info" style="position: fixed; bottom: 10px; right: 5px;">
+    <div id="timeline" style="width: 100%; height: 2px; background-color: #000;"></div>
+    <div id="song-details" style="display: flex; align-items: center;">
+        <span id="emoji">&#127925;</span>
+        <span id="song-name">Popular - The Weeknd</span>
+    </div>
+</div>
+</div>
+</div>
+</div>
